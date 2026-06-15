@@ -114,12 +114,31 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # 3. DATABASE: Automatically switch between local and Google Cloud SQL
 # Render will provide a DATABASE_URL environment variable later
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=f"postgres://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}",
+#         conn_max_age=600
+#     )
+# }
+
+# This approach avoids the complex URL string entirely
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"postgres://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}",
-        conn_max_age=600
+        conn_max_age=600,
+        ssl_require=True # Important for Google Cloud SQL connections
     )
 }
+
+# Add this fallback logic if individual variables are missing
+if not DATABASES['default']:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
+    }
 
 
 # Password validation
