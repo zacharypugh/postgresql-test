@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,15 +21,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y8&(7%#b#=@p1yyd*9l6cayld#z^=6%4ctuc+)-2k5vugqouq)'
+# # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 'django-insecure-y8&(7%#b#=@p1yyd*9l6cayld#z^=6%4ctuc+)-2k5vugqouq)'
+
+# 1. SECURITY: Don't hardcode keys or keep debug on in production
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-development-key')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-ALLOWED_HOSTS = []
+# 2. ALLOWED_HOSTS: Allow Render's domain
+ALLOWED_HOSTS = ['*'] # For initial setup; narrow this down to your render URL later
 
 
 # Application definition
@@ -94,15 +101,24 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'test-database',          # The database name you created in Google Cloud
+#         'USER': 'postgres',          # Usually 'postgres' or a custom user
+#         'PASSWORD': 'Justatest#3',    # The password for that user
+#         'HOST': '34.24.24.93',    # The Public IP address of your Cloud SQL instance
+#         'PORT': '5432',                  # Default PostgreSQL port
+#     }
+# }
+
+# 3. DATABASE: Automatically switch between local and Google Cloud SQL
+# Render will provide a DATABASE_URL environment variable later
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test-database',          # The database name you created in Google Cloud
-        'USER': 'postgres',          # Usually 'postgres' or a custom user
-        'PASSWORD': 'Justatest#3',    # The password for that user
-        'HOST': '34.24.24.93',    # The Public IP address of your Cloud SQL instance
-        'PORT': '5432',                  # Default PostgreSQL port
-    }
+    'default': dj_database_url.config(
+        default=f"postgres://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}",
+        conn_max_age=600
+    )
 }
 
 
@@ -140,4 +156,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
+
+# 4. STATIC FILES: Required for Django admin/assets to load on Render
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
