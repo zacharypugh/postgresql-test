@@ -10,7 +10,7 @@ function AnalysisConfig() {
     setResultCount(null); // Reset previous results
 
     try {
-      const response = await fetch('https://postgresql-test-vcsu.onrender.com:8000/api/run-analysis/', {
+      const response = await fetch('https://postgresql-test-vcsu.onrender.com/api/run-analysis/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,15 +41,16 @@ function AnalysisConfig() {
         <label htmlFor="category-select" style={{ marginRight: '10px', fontWeight: 'bold' }}>
           Select Value Category:
         </label>
-        <select
-          id="category-select"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          style={{ padding: '5px', fontSize: '16px' }}
-        >
-          <option value="< 100">&lt; 100</option>
-          <option value=">= 100">&gt;= 100</option>
-        </select>
+          <select
+            id="category-select"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            style={{ padding: '5px', fontSize: '16px' }}
+          >
+            {/* Changed values to safe, alphanumeric strings */}
+            <option value="less_than_100">&lt; 100</option>
+            <option value="greater_or_equal_100">&gt;= 100</option>
+          </select>
       </div>
 
       <button
