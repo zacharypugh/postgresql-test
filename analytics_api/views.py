@@ -103,6 +103,34 @@ def sales_summary(request):
             
 #     return JsonResponse({'error': 'Only POST requests are allowed.'}, status=405)
 
+# @csrf_exempt  
+# def run_analysis(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             category = data.get('category', '')
+
+#             # 1. Strip all whitespaces (normal or hidden) to prevent matching errors
+#             # This turns "< 100" or "<  100" into "<100"
+#             clean_category = "".join(category.split())
+
+#             # 2. Check the cleaned values
+#             if "100" in clean_category and "<" in clean_category:
+#                 count = Sale.objects.filter(amount__lt=100).count()
+#             elif "100" in clean_category and ">" in clean_category:
+#                 count = Sale.objects.filter(amount__gte=100).count()
+#             else:
+#                 print(f"RENDER LOG: Fell into else block with category: {category}")
+#                 return JsonResponse({'error': f'Invalid category: {category}'}, status=400)
+
+#             return JsonResponse({'count': count})
+            
+#         except Exception as e:
+#             print(f"RENDER LOG Global Exception: {str(e)}")
+#             return JsonResponse({'error': str(e)}, status=500)
+            
+#     return JsonResponse({'error': 'Only POST requests are allowed.'}, status=405)
+
 @csrf_exempt  
 def run_analysis(request):
     if request.method == 'POST':
@@ -110,23 +138,19 @@ def run_analysis(request):
             data = json.loads(request.body)
             category = data.get('category', '')
 
-            # 1. Strip all whitespaces (normal or hidden) to prevent matching errors
-            # This turns "< 100" or "<  100" into "<100"
-            clean_category = "".join(category.split())
-
-            # 2. Check the cleaned values
-            if "100" in clean_category and "<" in clean_category:
+            # Match EXACTLY what your Vercel logs say the frontend is sending:
+            if category == "less_than_100":
                 count = Sale.objects.filter(amount__lt=100).count()
-            elif "100" in clean_category and ">" in clean_category:
+            elif category == "greater_or_equal_100":
                 count = Sale.objects.filter(amount__gte=100).count()
             else:
-                print(f"RENDER LOG: Fell into else block with category: {category}")
+                print(f"⚠️ RENDER LOG: Fell into else block with category: {category}")
                 return JsonResponse({'error': f'Invalid category: {category}'}, status=400)
 
             return JsonResponse({'count': count})
             
         except Exception as e:
-            print(f"RENDER LOG Global Exception: {str(e)}")
+            print(f"💥 RENDER LOG Global Exception: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
             
     return JsonResponse({'error': 'Only POST requests are allowed.'}, status=405)
