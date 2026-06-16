@@ -120,11 +120,13 @@ def run_analysis(request):
             elif "100" in clean_category and ">" in clean_category:
                 count = Sale.objects.filter(amount__gte=100).count()
             else:
+                print(f"RENDER LOG: Fell into else block with category: {category}")
                 return JsonResponse({'error': f'Invalid category: {category}'}, status=400)
 
             return JsonResponse({'count': count})
             
         except Exception as e:
+            print(f"RENDER LOG Global Exception: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
             
     return JsonResponse({'error': 'Only POST requests are allowed.'}, status=405)
