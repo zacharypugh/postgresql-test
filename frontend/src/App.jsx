@@ -7,7 +7,7 @@ function App() {
 
   useEffect(() => {
 
-    fetch("http://localhost:8000/api/sales/")
+    fetch("https://postgresql-test-vcsu.onrender.com/api/sales/")
       .then(res => res.json())
       .then(data => setSales(data));
 

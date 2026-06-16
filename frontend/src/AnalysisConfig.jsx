@@ -10,7 +10,7 @@ function AnalysisConfig() {
     setResultCount(null); // Reset previous results
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/run-analysis/', {
+      const response = await fetch('https://postgresql-test-vcsu.onrender.com:8000/api/run-analysis/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
