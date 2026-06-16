@@ -43,24 +43,62 @@ def sales_summary(request):
 #             return JsonResponse({'error': str(e)}, status=500)
             
 #     return JsonResponse({'error': 'Only POST requests are allowed.'}, status=405)
+# @csrf_exempt  
+# def run_analysis(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             category = data.get('category')
+
+#             # Match against the new safe string keys
+#             if category == "less_than_100":
+#                 count = Sale.objects.filter(amount__lt=100).count()
+#             elif category == "greater_or_equal_100":
+#                 count = Sale.objects.filter(amount__gte=100).count()
+#             else:
+#                 return JsonResponse({'error': f'Invalid category selected: {category}'}, status=400)
+
+#             return JsonResponse({'count': count})
+            
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+            
+#     return JsonResponse({'error': 'Only POST requests are allowed.'}, status=405)
+
 @csrf_exempt  
 def run_analysis(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            category = data.get('category')
+            # Check if body exists
+            if not request.body:
+                print("🚨 RENDER LOG: The request body is completely empty!")
+                return JsonResponse({'error': 'Empty request body sent from frontend.'}, status=400)
+            
+            # Print raw payload to Render Logs so we can read it
+            print(f"📁 RENDER LOG Raw Body: {request.body.decode('utf-8')}")
 
-            # Match against the new safe string keys
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError as json_err:
+                print(f"❌ RENDER LOG JSON Decode Error: {str(json_err)}")
+                return JsonResponse({'error': f'Invalid JSON format: {str(json_err)}'}, status=400)
+
+            category = data.get('category')
+            print(f"🔍 RENDER LOG Extracted Category: {category}")
+
+            # Your matching text keys
             if category == "less_than_100":
                 count = Sale.objects.filter(amount__lt=100).count()
             elif category == "greater_or_equal_100":
                 count = Sale.objects.filter(amount__gte=100).count()
             else:
-                return JsonResponse({'error': f'Invalid category selected: {category}'}, status=400)
+                print(f"⚠️ RENDER LOG: Fell into else block with category: {category}")
+                return JsonResponse({'error': f'Invalid category: {category}'}, status=400)
 
             return JsonResponse({'count': count})
             
         except Exception as e:
+            print(f"💥 RENDER LOG Global Exception: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
             
     return JsonResponse({'error': 'Only POST requests are allowed.'}, status=405)
