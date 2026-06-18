@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 function AnalysisConfig() {
-  const [category, setCategory] = useState('< 100');
+  const [category, setCategory] = useState('less_than_100');
   const [resultCount, setResultCount] = useState(null);
   const [loading, setLoading] = useState(false);
 
